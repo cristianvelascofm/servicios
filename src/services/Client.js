@@ -1,40 +1,51 @@
 import axios from "axios";
 
-var path = "http://192.168.56.1:5000/"
+var path = "http://192.168.130.79:5000/"
+// var path = "http://192.168.56.1:5000/"
 var data = {}
 var result = {}
-export const ClientService ={
-    getClients(){
-        data['action']= 'get_user'
-        axios.post(path,data).then((response) =>{
+var ans = []
+export const ClientService = {
+    async getClients() {
+        data['action'] = 'get_user'
+        await axios.post(path, data).then((response) => {
             var dato = response.data
-            var items = dato.split(',')
-            result['id'] = items[0]
-            result['name'] = items[1]
-            result['second_name'] = items[2]
-            result['first_last_name']= items[3]
-            result['second_last_name']= items[4]
-            result['password']= items[5]
-            result['mail'] = items[6]
-            result["nit"] = items[7]
-            result['rol'] = items[8]
-            result['state'] = items[9]
-            console.log('Data: '+JSON.stringify(result))
+            for (var i = 0; i < dato.length; i++) {
+                console.log(dato[i][0])
+
+                result['id'] = dato[i][0]
+                result['name'] = dato[i][1]
+                result['second_name'] = dato[i][2]
+                result['first_last_name'] = dato[i][3]
+                result['second_last_name'] = dato[i][4]
+                result['password'] = dato[i][5]
+                result['mail'] = dato[i][6]
+                result["nit"] = dato[i][7]
+                result['rol'] = dato[i][8]
+                result['state'] = dato[i][9]
+                ans.push(result)
+                console.log('ANSa **: ')
+                console.log(ans)
+
+            }
+
         })
-        
-        return result
-    },
-    async addClient(cedula,primerNombre,segundoNombre,primerApellido,segundoApellido,clave,email,nitEmpresa,rol,estado){
-        
-    },
-    async updateClient(){
+        console.log('ANS: ')
+        console.log(ans)
+        return ans
 
     },
-    async deleteClient(){
+    async addClient(cedula, primerNombre, segundoNombre, primerApellido, segundoApellido, clave, email, nitEmpresa, rol, estado) {
+
+    },
+    async updateClient() {
+
+    },
+    async deleteClient() {
         axios.post(path, data).then((response) => {
 
         })
     },
-    
-    
+
+
 }

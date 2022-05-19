@@ -384,33 +384,13 @@ export default {
 
     // CRUD USUARIOS
    async obtenerUsuarios() {
-      // var path = "http://192.168.56.1:5000/"
-      // var data = {};
-      // var result = {};
-      // data["action"] = "get_user";
-      // axios.post(path, data).then((response) => {
-      //   var dato = response.data;
-      //   var items = dato.split(",");
-      //   result["id"] = items[0];
-      //   result["name"] = items[1];
-      //   result["second_name"] = items[2];
-      //   result["first_last_name"] = items[3];
-      //   result["second_last_name"] = items[4];
-      //   result["password"] = items[5];
-      //   result["mail"] = items[6];
-      //   result["nit"] = items[7];
-      //   result["rol"] = items[8];
-      //   result["state"] = items[9];
-      //   console.log("Data: " + JSON.stringify(result));
-      //   this.items.push(result);
-      //   // return result;
-      // });
       var resultado =  await ClientService.getClients()
       
-
+      
       console.log("RES")
       console.log(resultado)
-      this.items.push(resultado)
+      // console.log(await ClientService.getClients())
+      this.items = resultado
       // // for(var i=0; i< resultado.length;i++){
       // //   this.items.push(resultado[i])
       // // }
