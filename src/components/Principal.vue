@@ -1,16 +1,16 @@
 <template>
   <b-container>
     <div>
-      <b-button v-b-modal.modal-user variant="primary">Usuarios</b-button>
+      <b-button v-b-modal.modal-user variant="primary" @click="obtenerUsuarios"
+        >Usuarios</b-button
+      >
       <b-modal
         id="modal-user"
         ref="modal"
         title="Usuarios"
-        @show="resetModal"
-        @hidden="resetModal"
-        @ok="handleOk"
+        scrollable
         header-bg-variant="light"
-        header-text-variant="dark"
+        header-text-variant="primary"
         hide-header-close
         no-close-on-esc
         no-close-on-backdrop
@@ -28,6 +28,19 @@
                 <b-col>
                   <form ref="form" @submit.stop.prevent="handleSubmit">
                     <b-form-group
+                      label="Cédula"
+                      label-for="id-input"
+                      invalid-feedback="Cédula es requerida"
+                      :state="nameState"
+                    >
+                      <b-form-input
+                        id="id-input"
+                        v-model="id"
+                        :state="idState"
+                        required
+                      ></b-form-input>
+                    </b-form-group>
+                    <b-form-group
                       label="Primer Nombre"
                       label-for="name-input"
                       invalid-feedback="Primer nombre es requerido"
@@ -44,7 +57,7 @@
                       label="Segundo Nombre"
                       label-for="second-name-input"
                       invalid-feedback="Segundo nombre es requerido"
-                      :state="lastNameState"
+                      :state="secondNameState"
                     >
                       <b-form-input
                         id="second-name-input"
@@ -61,7 +74,7 @@
                     >
                       <b-form-input
                         id="name-input"
-                        v-model="fistLastName"
+                        v-model="firstLastName"
                         :state="firstLastNameState"
                         required
                       ></b-form-input>
@@ -80,19 +93,6 @@
                       ></b-form-input>
                     </b-form-group>
 
-                    <b-form-group
-                      label="Usuario"
-                      label-for="user-input"
-                      invalid-feedback="Usuario es requerido"
-                      :state="userState"
-                    >
-                      <b-form-input
-                        id="user-input"
-                        v-model="user"
-                        :state="userState"
-                        required
-                      ></b-form-input>
-                    </b-form-group>
                     <b-form-group
                       label="Contraseña"
                       label-for="password-input"
@@ -152,43 +152,41 @@
                         </b-form-group>
                       </b-col>
                     </b-row>
-                      <b-row >
-                        <b-col class="col-sm-6">
-                          <b-form-group
-                            label="Rol"
-                            label-for="rol-input"
-                            invalid-feedback="Rol es requerido"
+                    <b-row>
+                      <b-col class="col-sm-6">
+                        <b-form-group
+                          label="Rol"
+                          label-for="rol-input"
+                          invalid-feedback="Rol es requerido"
+                          :state="rolState"
+                        >
+                          <b-form-select
+                            id="rol-input"
+                            v-model="rol"
                             :state="rolState"
-                          >
-                            <b-form-select
-                              id="rol-input"
-                              v-model="rol"
-                              :state="rolState"
-                              :options="rols"
-                              required
-                              size="lg"
-                            ></b-form-select>
-                          </b-form-group>
-                        </b-col>
-                        <b-col class="col-sm-6" >
-                          <b-form-group
-                            label="Estado"
-                            label-for="state-input"
-                            invalid-feedback="Estado es requerido"
+                            :options="rols"
+                            required
+                            size="lg"
+                          ></b-form-select>
+                        </b-form-group>
+                      </b-col>
+                      <b-col class="col-sm-6">
+                        <b-form-group
+                          label="Estado"
+                          label-for="state-input"
+                          invalid-feedback="Estado es requerido"
+                          :state="stateState"
+                        >
+                          <b-form-select
+                            id="state-input"
+                            v-model="state"
                             :state="stateState"
-                          >
-                            <b-form-select
-                              id="state-input"
-                              v-model="state"
-                              :state="stateState"
-                              :options="states"
-                              required
-                              size="sm"
-                            ></b-form-select>
-                          </b-form-group>
-                        </b-col>
-                      
-                    
+                            :options="states"
+                            required
+                            size="sm"
+                          ></b-form-select>
+                        </b-form-group>
+                      </b-col>
                     </b-row>
                   </form>
                 </b-col>
@@ -258,36 +256,96 @@
             </b-col>
           </b-row>
         </b-container>
+        <template #modal-footer>
+          <b-row id="containerBtnSaveGrafic" class="p-0 text-right">
+            <b-col class="p-0">
+              <b-button
+                squared
+                variant="success"
+                id="buttonModal"
+                class="m-2 mr-4"
+                value="Cancelar"
+                @click="closeModal('specific')"
+                >Guardar</b-button
+              >
+              <b-button
+                squared
+                variant="primary"
+                id="buttonModal"
+                class="m-2 mr-4"
+                value="Cancelar"
+                @click="closeModal('specific')"
+                >Actualizar</b-button
+              >
+              <b-button
+                squared
+                variant="danger"
+                id="buttonModal"
+                class="m-2 mr-4"
+                value="Cancelar"
+                @click="closeModal('specific')"
+                >Eliminar</b-button
+              >
+              <b-button
+                squared
+                variant="dark"
+                id="buttonModal"
+                class="m-2 mr-4"
+                value="Cancelar"
+                @click="closeModal('user')"
+                >Cancelar</b-button
+              >
+            </b-col>
+          </b-row>
+        </template>
       </b-modal>
     </div>
   </b-container>
 </template>
 
 <script>
-import { ClientesService } from '../services/Client';
+import { ClientService } from "../services/Client";
+import axios from "axios";
 export default {
   data() {
     return {
+      firstLastNameState: null,
+      id: "",
+      idState: null,
       name: "",
       nameState: null,
-      lastName: "",
-      lastNameState: null,
+      secondName: "",
+      secondNameState: null,
+      firstLastName: "",
+      secondLastName: "",
+      secondLastNameState: null,
+      password: "",
+      passwordState: null,
+      mail: "",
+      mailState: null,
+      // Tabla
       modes: ["multi", "single", "range"],
-      fields: ["selected", "isActive", "age", "first_name", "last_name"],
-      items: [
-        {
-          isActive: true,
-          age: 40,
-          first_name: "Dickerson",
-          last_name: "Macdonald",
-        },
-        { isActive: false, age: 21, first_name: "Larsen", last_name: "Shaw" },
-        { isActive: false, age: 89, first_name: "Geneva", last_name: "Wilson" },
-        { isActive: true, age: 38, first_name: "Jami", last_name: "Carney" },
+      fields: [
+        "selected",
+        "id",
+        "name",
+        "second_name",
+        "first_last_name",
+        "second_last_name",
+        "password",
+        "mail",
+        "nit",
+        "rol",
+        "state",
       ],
+      items: [],
       selectMode: "multi",
       selected: [],
+      // Fin tabla
+
       build: null,
+      nitBuild: "",
+      nitBuildState: null,
       builds: [
         { value: null, text: "Please select an option" },
         { value: "a", text: "This is First option" },
@@ -295,6 +353,7 @@ export default {
         { value: { C: "3PO" }, text: "This is an option with object value" },
         { value: "d", text: "This one is disabled", disabled: true },
       ],
+      buildState: null,
       rol: null,
       rols: [
         { value: null, text: "Please select an option" },
@@ -303,7 +362,9 @@ export default {
         { value: { C: "3PO" }, text: "This is an option with object value" },
         { value: "d", text: "This one is disabled", disabled: true },
       ],
+      rolState: null,
       state: null,
+      stateState: null,
       states: [
         { value: null, text: "Please select an option" },
         { value: "a", text: "This is First option" },
@@ -314,6 +375,100 @@ export default {
     };
   },
   methods: {
+    //Cierra el modal correspondiente
+    closeModal(mod) {
+      if (mod == "user") {
+        return this.$bvModal.hide("modal-user");
+      }
+    },
+
+    // CRUD USUARIOS
+   async obtenerUsuarios() {
+      // var path = "http://192.168.56.1:5000/"
+      // var data = {};
+      // var result = {};
+      // data["action"] = "get_user";
+      // axios.post(path, data).then((response) => {
+      //   var dato = response.data;
+      //   var items = dato.split(",");
+      //   result["id"] = items[0];
+      //   result["name"] = items[1];
+      //   result["second_name"] = items[2];
+      //   result["first_last_name"] = items[3];
+      //   result["second_last_name"] = items[4];
+      //   result["password"] = items[5];
+      //   result["mail"] = items[6];
+      //   result["nit"] = items[7];
+      //   result["rol"] = items[8];
+      //   result["state"] = items[9];
+      //   console.log("Data: " + JSON.stringify(result));
+      //   this.items.push(result);
+      //   // return result;
+      // });
+      var resultado =  await ClientService.getClients()
+      
+
+      console.log("RES")
+      console.log(resultado)
+      this.items.push(resultado)
+      // // for(var i=0; i< resultado.length;i++){
+      // //   this.items.push(resultado[i])
+      // // }
+      // console.log("ITEMS")
+      // console.log(this.items)
+    },
+    agregarUsuario() {
+      var cedula = this.id;
+      var primerNombre = this.name;
+      var segundoNombre = this.secondName;
+      var primerApellido = this.firstLastName;
+      var segundoApellido = this.secondLastName;
+      var clave = this.password;
+      var email = this.mail;
+      var nitEmpresa = this.nitBuild;
+      var rol = this.rol;
+      var estado = this.state;
+      ClientService.addClient(
+        cedula,
+        primerNombre,
+        segundoNombre,
+        primerApellido,
+        segundoApellido,
+        clave,
+        email,
+        nitEmpresa,
+        rol,
+        estado
+      );
+    },
+    actualizarUsuario() {
+      var cedula = this.id;
+      var primerNombre = this.name;
+      var segundoNombre = this.secondName;
+      var primerApellido = this.firstLastName;
+      var segundoApellido = this.secondLastName;
+      var clave = this.password;
+      var email = this.mail;
+      var nitEmpresa = this.nitBuild;
+      var rol = this.rol;
+      var estado = this.state;
+      ClientService.updateClient(
+        cedula,
+        primerNombre,
+        segundoNombre,
+        primerApellido,
+        segundoApellido,
+        clave,
+        email,
+        nitEmpresa,
+        rol,
+        estado
+      );
+    },
+    eliminarUsuario() {
+      ClientService.deleteClient(cedula);
+    },
+
     checkFormValidity() {
       const valid = this.$refs.form.checkValidity();
       this.nameState = valid;
@@ -369,7 +524,7 @@ export default {
 #lele{
   background-color: brown;
 } */
-#aaa{
+#aaa {
   background-color: aqua;
 }
 </style>
